@@ -21,6 +21,8 @@ const KanbanBoard = () => {
             tasks: [
                 { id: 'task-1', content: 'Task 1' },
                 { id: 'task-2', content: 'Task 2' },
+                { id: 'task-4', content: 'Task 4' },
+                { id: 'task-5', content: 'Task 5' },
             ],
         },
         {
