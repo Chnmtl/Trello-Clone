@@ -53,7 +53,7 @@ export default defineConfig({
             }
         },
         port: 56373,
-        https: {
+        https: process.env.CI ? undefined : {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
         }
