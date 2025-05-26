@@ -26,7 +26,7 @@ function App() {
         //    )}
         //</div>
         <div>
-            <h1>Trello Clone</h1>
+            <h1>Trello Clone TESTTTT</h1>
             <KanbanBoard />
         </div>
     );
