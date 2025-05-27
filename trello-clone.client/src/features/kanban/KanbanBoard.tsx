@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { Box, Paper, Typography, Card, CardContent, IconButton, TextField, Button } from '@mui/material';
+import { Box, Paper, Typography, Card, CardContent, IconButton, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
+import AddIcon from '@mui/icons-material/Add';
+import Fab from '@mui/material/Fab';
 
 interface Task {
     id: string;
-    content: string;
+    name: string;
+    description: string;
 }
 
 interface Column {
@@ -17,27 +20,41 @@ interface Column {
 
 const BoardContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
-    gap: theme.spacing(2),
-    padding: theme.spacing(2),
-    minHeight: '100vh',
-    backgroundColor: 'transparent', // Use transparent or theme.palette.background.default
+    gap: theme.spacing(3),
+    padding: theme.spacing(3),
+    minHeight: '80vh',
+    height: '80vh',
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    backgroundColor: 'transparent',
 }));
 
 const ColumnPaper = styled(Paper)(({ theme }) => ({
-    width: 300,
+    flex: 1,
+    minWidth: 320,
+    maxWidth: 400,
+    display: 'flex',
+    flexDirection: 'column',
     padding: theme.spacing(2),
     borderRadius: theme.spacing(2),
-    backgroundColor: theme.palette.background.paper, // Use theme color for cards
+    backgroundColor: theme.palette.background.paper,
+    height: '100%',
 }));
 
 const AddTaskBox = styled(Box)(({ theme }) => ({
     display: 'flex',
+    flexDirection: 'column',
     gap: theme.spacing(1),
-    marginBottom: theme.spacing(2),
+    marginTop: 'auto',
+    position: 'relative',
+    minHeight: 120,
 }));
 
 const TasksBox = styled(Box)({
     minHeight: 200,
+    flexGrow: 1,
+    marginBottom: 8,
+    overflowY: 'auto',
 });
 
 const TaskCard = styled(Card)(({ theme }) => ({
@@ -45,7 +62,7 @@ const TaskCard = styled(Card)(({ theme }) => ({
     cursor: 'grab',
     display: 'flex',
     alignItems: 'center',
-    backgroundColor: theme.palette.background.default, // Use theme color for task cards
+    backgroundColor: theme.palette.background.default,
 }));
 
 const TaskCardContent = styled(CardContent)({
@@ -61,16 +78,16 @@ const KanbanBoard = () => {
                 id: 'column-1',
                 title: 'To Do',
                 tasks: [
-                    { id: 'task-1', content: 'Task 1' },
-                    { id: 'task-2', content: 'Task 2' },
-                    { id: 'task-4', content: 'Task 4' },
-                    { id: 'task-5', content: 'Task 5' },
+                    { id: 'task-1', name: 'Task 1', description: 'Description 1' },
+                    { id: 'task-2', name: 'Task 2', description: 'Description 2' },
+                    { id: 'task-4', name: 'Task 4', description: 'Description 4' },
+                    { id: 'task-5', name: 'Task 5', description: 'Description 5' },
                 ],
             },
             {
                 id: 'column-2',
                 title: 'In Progress',
-                tasks: [{ id: 'task-3', content: 'Task 3' }],
+                tasks: [{ id: 'task-3', name: 'Task 3', description: 'Description 3' }],
             },
             {
                 id: 'column-3',
@@ -79,7 +96,7 @@ const KanbanBoard = () => {
             },
         ];
     });
-    const [newTasks, setNewTasks] = useState<{ [columnId: string]: string }>({});
+    const [newTasks, setNewTasks] = useState<{ [columnId: string]: { name: string; description: string } }>({});
 
     // Save to localStorage on columns change
     useEffect(() => {
@@ -103,8 +120,9 @@ const KanbanBoard = () => {
     };
 
     const handleAddTask = (columnId: string) => {
-        const content = newTasks[columnId]?.trim();
-        if (!content) return;
+        const name = newTasks[columnId]?.name?.trim();
+        const description = newTasks[columnId]?.description?.trim();
+        if (!name) return;
         setColumns(cols =>
             cols.map(col =>
                 col.id === columnId
@@ -112,13 +130,13 @@ const KanbanBoard = () => {
                           ...col,
                           tasks: [
                               ...col.tasks,
-                              { id: `task-${Date.now()}`, content },
+                              { id: `task-${Date.now()}`, name, description: description || '' },
                           ],
                       }
                     : col
             )
         );
-        setNewTasks(tasks => ({ ...tasks, [columnId]: '' }));
+        setNewTasks(tasks => ({ ...tasks, [columnId]: { name: '', description: '' } }));
     };
 
     const handleDeleteTask = (columnId: string, taskId: string) => {
@@ -139,22 +157,6 @@ const KanbanBoard = () => {
                         <Typography variant="h6" gutterBottom>
                             {column.title}
                         </Typography>
-                        <AddTaskBox>
-                            <TextField
-                                size="small"
-                                variant="outlined"
-                                placeholder="Add a task"
-                                value={newTasks[column.id] || ''}
-                                onChange={e => setNewTasks(tasks => ({ ...tasks, [column.id]: e.target.value }))}
-                                onKeyDown={e => {
-                                    if (e.key === 'Enter') handleAddTask(column.id);
-                                }}
-                                fullWidth
-                            />
-                            <Button variant="contained" onClick={() => handleAddTask(column.id)}>
-                                Add
-                            </Button>
-                        </AddTaskBox>
                         <Droppable droppableId={column.id}>
                             {(provided) => (
                                 <TasksBox ref={provided.innerRef} {...provided.droppableProps}>
@@ -167,7 +169,8 @@ const KanbanBoard = () => {
                                                     {...provided.dragHandleProps}
                                                 >
                                                     <TaskCardContent>
-                                                        <Typography>{task.content}</Typography>
+                                                        <Typography fontWeight="bold">{task.name}</Typography>
+                                                        <Typography variant="body2" color="text.secondary">{task.description}</Typography>
                                                     </TaskCardContent>
                                                     <IconButton onClick={() => handleDeleteTask(column.id, task.id)}>
                                                         <DeleteIcon />
@@ -180,6 +183,32 @@ const KanbanBoard = () => {
                                 </TasksBox>
                             )}
                         </Droppable>
+                        <AddTaskBox>
+                            <TextField
+                                size="small"
+                                variant="outlined"
+                                placeholder="Name"
+                                value={newTasks[column.id]?.name || ''}
+                                onChange={e => setNewTasks(tasks => ({ ...tasks, [column.id]: { ...tasks[column.id], name: e.target.value } }))}
+                                fullWidth
+                                sx={{ mb: 1 }}
+                            />
+                            <TextField
+                                size="small"
+                                variant="outlined"
+                                placeholder="Description"
+                                value={newTasks[column.id]?.description || ''}
+                                onChange={e => setNewTasks(tasks => ({ ...tasks, [column.id]: { ...tasks[column.id], description: e.target.value } }))}
+                                fullWidth
+                                multiline
+                                minRows={2}
+                            />
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+                                <Fab color="primary" size="small" onClick={() => handleAddTask(column.id)} aria-label="add">
+                                    <AddIcon />
+                                </Fab>
+                            </Box>
+                        </AddTaskBox>
                     </ColumnPaper>
                 ))}
             </BoardContainer>
