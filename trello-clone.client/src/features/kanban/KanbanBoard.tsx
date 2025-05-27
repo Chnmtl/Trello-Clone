@@ -54,9 +54,7 @@ const AddTaskBox = styled(Box)(({ theme }) => ({
 
 const TasksBox = styled(Box)({
     minHeight: 200,
-    flexGrow: 1,
     marginBottom: 8,
-    overflowY: 'auto',
 });
 
 const TaskCard = styled(Card)(({ theme }) => ({
@@ -72,9 +70,25 @@ const TaskCardContent = styled(CardContent)({
 });
 
 const KanbanBoard = () => {
-    const [columns, setColumns] = useState<Column[]>(() => {
+    // On first load, migrate old tasks if needed
+    const getInitialColumns = () => {
         const saved = localStorage.getItem('kanban-columns');
-        if (saved) return JSON.parse(saved);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                // Migrate old format if needed
+                return parsed.map((col: any) => ({
+                    ...col,
+                    tasks: (col.tasks || []).map((task: any) =>
+                        task.name !== undefined && task.description !== undefined
+                            ? task
+                            : { id: task.id, name: task.content || '', description: '' }
+                    ),
+                }));
+            } catch {
+                // fallback to default
+            }
+        }
         return [
             {
                 id: 'column-1',
@@ -97,7 +111,8 @@ const KanbanBoard = () => {
                 tasks: [],
             },
         ];
-    });
+    };
+    const [columns, setColumns] = useState<Column[]>(getInitialColumns);
     const [newTasks, setNewTasks] = useState<{ [columnId: string]: { name: string; description: string } }>({});
     const [showAddForm, setShowAddForm] = useState<{ [columnId: string]: boolean }>({});
 
@@ -156,7 +171,7 @@ const KanbanBoard = () => {
         <DragDropContext onDragEnd={onDragEnd}>
             <BoardContainer>
                 {columns.map((column) => (
-                    <ColumnPaper key={column.id}>
+                    <ColumnPaper key={column.id} sx={{ position: 'relative' }}>
                         <Typography variant="h6" gutterBottom>
                             {column.title}
                         </Typography>
@@ -187,13 +202,7 @@ const KanbanBoard = () => {
                             )}
                         </Droppable>
                         <AddTaskBox>
-                            {!showAddForm[column.id] ? (
-                                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                    <Fab color="primary" size="small" onClick={() => setShowAddForm(f => ({ ...f, [column.id]: true }))} aria-label="add">
-                                        <AddIcon />
-                                    </Fab>
-                                </Box>
-                            ) : (
+                            {showAddForm[column.id] ? (
                                 <Box>
                                     <TextField
                                         size="small"
@@ -224,8 +233,16 @@ const KanbanBoard = () => {
                                         </Fab>
                                     </Box>
                                 </Box>
-                            )}
+                            ) : null}
                         </AddTaskBox>
+                        {!showAddForm[column.id] && (
+                            <Fab color="primary" size="small"
+                                onClick={() => setShowAddForm(f => ({ ...f, [column.id]: true }))}
+                                aria-label="add"
+                                sx={{ position: 'absolute', bottom: 16, right: 16 }}>
+                                <AddIcon />
+                            </Fab>
+                        )}
                     </ColumnPaper>
                 ))}
             </BoardContainer>
