@@ -5,8 +5,8 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useColorMode } from '../ColorModeContext';
 
 const pages = [
-  { label: 'Trello', path: '/' },
-  { label: 'About', path: '/about' },
+  { label: 'About', path: '/' },
+  { label: 'Trello', path: '/trello' },
   { label: 'Tables', path: '/tables' },
 ];
 
@@ -19,7 +19,7 @@ function NavTabs({ leftContent }: { leftContent?: React.ReactNode }) {
     : 0;
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', bgcolor: 'background.paper', px: 2, py: 1, boxShadow: 1, borderBottom: '6px solid white' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', bgcolor: 'background.paper', px: 2, py: 1 }}>
       {leftContent && (
         <Box sx={{ fontWeight: 'bold', fontSize: 28, letterSpacing: 1, mr: 4 }}>
           {leftContent}

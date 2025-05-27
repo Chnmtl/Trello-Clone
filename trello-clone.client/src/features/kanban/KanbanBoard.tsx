@@ -20,13 +20,14 @@ const BoardContainer = styled(Box)(({ theme }) => ({
     gap: theme.spacing(2),
     padding: theme.spacing(2),
     minHeight: '100vh',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: 'transparent', // Use transparent or theme.palette.background.default
 }));
 
 const ColumnPaper = styled(Paper)(({ theme }) => ({
     width: 300,
     padding: theme.spacing(2),
     borderRadius: theme.spacing(2),
+    backgroundColor: theme.palette.background.paper, // Use theme color for cards
 }));
 
 const AddTaskBox = styled(Box)(({ theme }) => ({
@@ -44,6 +45,7 @@ const TaskCard = styled(Card)(({ theme }) => ({
     cursor: 'grab',
     display: 'flex',
     alignItems: 'center',
+    backgroundColor: theme.palette.background.default, // Use theme color for task cards
 }));
 
 const TaskCardContent = styled(CardContent)({
