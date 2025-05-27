@@ -61,8 +61,8 @@ function App() {
       <Header />
       <MainContent>
         <Routes>
-          <Route path="/" element={<KanbanBoard />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/" element={<About />} />
+          <Route path="/trello" element={<KanbanBoard />} />
           <Route path="/tables" element={<Tables />} />
         </Routes>
       </MainContent>

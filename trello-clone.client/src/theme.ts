@@ -60,8 +60,8 @@ export const lightTheme = createTheme({
       main: '#14b8a6', // teal accent
     },
     background: {
-      default: '#d6f5e3', // softer pale green
-      paper: '#f4f7f5', // gentle off-white with a hint of green
+      default: '#f4f7f5', // gentle off-white with a hint of green      
+      paper: '#d6f5e3', // softer pale green
     },
     text: {
       primary: '#23422e', // darker green for better contrast
