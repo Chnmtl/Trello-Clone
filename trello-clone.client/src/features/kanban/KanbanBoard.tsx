@@ -5,6 +5,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
 
 interface Task {
     id: string;
@@ -97,6 +99,7 @@ const KanbanBoard = () => {
         ];
     });
     const [newTasks, setNewTasks] = useState<{ [columnId: string]: { name: string; description: string } }>({});
+    const [showAddForm, setShowAddForm] = useState<{ [columnId: string]: boolean }>({});
 
     // Save to localStorage on columns change
     useEffect(() => {
@@ -184,30 +187,44 @@ const KanbanBoard = () => {
                             )}
                         </Droppable>
                         <AddTaskBox>
-                            <TextField
-                                size="small"
-                                variant="outlined"
-                                placeholder="Name"
-                                value={newTasks[column.id]?.name || ''}
-                                onChange={e => setNewTasks(tasks => ({ ...tasks, [column.id]: { ...tasks[column.id], name: e.target.value } }))}
-                                fullWidth
-                                sx={{ mb: 1 }}
-                            />
-                            <TextField
-                                size="small"
-                                variant="outlined"
-                                placeholder="Description"
-                                value={newTasks[column.id]?.description || ''}
-                                onChange={e => setNewTasks(tasks => ({ ...tasks, [column.id]: { ...tasks[column.id], description: e.target.value } }))}
-                                fullWidth
-                                multiline
-                                minRows={2}
-                            />
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-                                <Fab color="primary" size="small" onClick={() => handleAddTask(column.id)} aria-label="add">
-                                    <AddIcon />
-                                </Fab>
-                            </Box>
+                            {!showAddForm[column.id] ? (
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Fab color="primary" size="small" onClick={() => setShowAddForm(f => ({ ...f, [column.id]: true }))} aria-label="add">
+                                        <AddIcon />
+                                    </Fab>
+                                </Box>
+                            ) : (
+                                <Box>
+                                    <TextField
+                                        size="small"
+                                        variant="outlined"
+                                        placeholder="Name"
+                                        value={newTasks[column.id]?.name || ''}
+                                        onChange={e => setNewTasks(tasks => ({ ...tasks, [column.id]: { ...tasks[column.id], name: e.target.value } }))}
+                                        fullWidth
+                                        sx={{ mb: 1 }}
+                                        autoFocus
+                                    />
+                                    <TextField
+                                        size="small"
+                                        variant="outlined"
+                                        placeholder="Description"
+                                        value={newTasks[column.id]?.description || ''}
+                                        onChange={e => setNewTasks(tasks => ({ ...tasks, [column.id]: { ...tasks[column.id], description: e.target.value } }))}
+                                        fullWidth
+                                        multiline
+                                        minRows={2}
+                                    />
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
+                                        <Fab color="primary" size="small" onClick={() => { handleAddTask(column.id); setShowAddForm(f => ({ ...f, [column.id]: false })); }} aria-label="confirm">
+                                            <CheckIcon />
+                                        </Fab>
+                                        <Fab color="default" size="small" onClick={() => { setShowAddForm(f => ({ ...f, [column.id]: false })); setNewTasks(tasks => ({ ...tasks, [column.id]: { name: '', description: '' } })); }} aria-label="cancel">
+                                            <CloseIcon />
+                                        </Fab>
+                                    </Box>
+                                </Box>
+                            )}
                         </AddTaskBox>
                     </ColumnPaper>
                 ))}
