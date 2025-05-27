@@ -1,8 +1,12 @@
 //import { useEffect, useState } from 'react';
 //import axios from 'axios';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import './App.css';
-import KanbanBoard from './components/KanbanBoard';
+import KanbanBoard from './features/kanban/KanbanBoard';
+import About from './features/about/About';
+import Tables from './features/tables/Tables';
+import NavTabs from './components/NavTabs';
 
 //interface Board {
 //    id: number;
@@ -25,10 +29,17 @@ function App() {
         //        <p>Loading...</p>
         //    )}
         //</div>
-        <div>
-            <h1>Trello Clone</h1>
-            <KanbanBoard />
-        </div>
+        <Router>
+            <div>
+                <h1>Trello Clone</h1>
+                <NavTabs />
+                <Routes>
+                    <Route path="/" element={<KanbanBoard />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/tables" element={<Tables />} />
+                </Routes>
+            </div>
+        </Router>
     );
 }
 
