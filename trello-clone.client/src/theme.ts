@@ -18,6 +18,16 @@ export const darkTheme = createTheme({
       secondary: '#b0b0b0',
     },
   },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          '--mui-background-default': '#121212',
+          '--mui-text-primary': '#e0e0e0',
+        },
+      },
+    },
+  },
 });
 
 export const lightTheme = createTheme({
@@ -36,6 +46,16 @@ export const lightTheme = createTheme({
     text: {
       primary: '#212121',
       secondary: '#424242',
+    },
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          '--mui-background-default': '#f5f5f5',
+          '--mui-text-primary': '#212121',
+        },
+      },
     },
   },
 });
