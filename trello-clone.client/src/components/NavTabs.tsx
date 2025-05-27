@@ -1,4 +1,4 @@
-import { AppBar, Box, Tab, Tabs, IconButton, useTheme } from '@mui/material';
+import { Box, Tab, Tabs, IconButton, useTheme } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -10,7 +10,7 @@ const pages = [
   { label: 'Tables', path: '/tables' },
 ];
 
-function NavTabs() {
+function NavTabs({ leftContent }: { leftContent?: React.ReactNode }) {
   const location = useLocation();
   const theme = useTheme();
   const { toggleColorMode } = useColorMode();
@@ -19,18 +19,22 @@ function NavTabs() {
     : 0;
 
   return (
-    <AppBar position="static" color="default">
-      <Box display="flex" alignItems="center">
-        <Tabs value={currentTab} indicatorColor="primary" textColor="primary" variant="fullWidth" sx={{ flex: 1 }}>
-          {pages.map((page) => (
-            <Tab key={page.path} label={page.label} component={Link} to={page.path} />
-          ))}
-        </Tabs>
-        <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color="inherit">
-          {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-        </IconButton>
-      </Box>
-    </AppBar>
+    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', bgcolor: 'background.paper', px: 2, py: 1, boxShadow: 1, borderBottom: '6px solid white' }}>
+      {leftContent && (
+        <Box sx={{ fontWeight: 'bold', fontSize: 28, letterSpacing: 1, mr: 4 }}>
+          {leftContent}
+        </Box>
+      )}
+      <Box sx={{ flexGrow: 1 }} />
+      <Tabs value={currentTab} indicatorColor="primary" textColor="primary" sx={{ minHeight: 48 }}>
+        {pages.map((page) => (
+          <Tab key={page.path} label={page.label} component={Link} to={page.path} sx={{ minWidth: 100, fontWeight: 'bold' }} />
+        ))}
+      </Tabs>
+      <IconButton sx={{ ml: 2 }} onClick={toggleColorMode} color="inherit">
+        {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+      </IconButton>
+    </Box>
   );
 }
 

@@ -10,21 +10,7 @@ import { Box, Container } from '@mui/material';
 
 function Header() {
   return (
-    <Box component="header" sx={{
-      width: '100%',
-      bgcolor: 'background.paper',
-      boxShadow: 1,
-      mb: 2,
-    }}>
-      <Container maxWidth="lg" sx={{ display: 'flex', alignItems: 'center', py: 1 }}>
-        <Box sx={{ fontWeight: 'bold', fontSize: 24, letterSpacing: 1, mr: 2 }}>
-          Trello Clone
-        </Box>
-        <Box sx={{ flexGrow: 1 }} />
-        {/* NavTabs already contains navigation and theme toggle */}
-      </Container>
-      <NavTabs />
-    </Box>
+    <NavTabs leftContent={<span>Trello Clone</span>} />
   );
 }
 
