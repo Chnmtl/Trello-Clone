@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Box, Paper, Typography, Card, CardContent, IconButton, TextField, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { styled } from '@mui/material/styles';
 
 interface Task {
     id: string;
@@ -13,6 +14,41 @@ interface Column {
     title: string;
     tasks: Task[];
 }
+
+const BoardContainer = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    gap: theme.spacing(2),
+    padding: theme.spacing(2),
+    minHeight: '100vh',
+    backgroundColor: '#f0f0f0',
+}));
+
+const ColumnPaper = styled(Paper)(({ theme }) => ({
+    width: 300,
+    padding: theme.spacing(2),
+    borderRadius: theme.spacing(2),
+}));
+
+const AddTaskBox = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    gap: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+}));
+
+const TasksBox = styled(Box)({
+    minHeight: 200,
+});
+
+const TaskCard = styled(Card)(({ theme }) => ({
+    marginBottom: theme.spacing(1),
+    cursor: 'grab',
+    display: 'flex',
+    alignItems: 'center',
+}));
+
+const TaskCardContent = styled(CardContent)({
+    flexGrow: 1,
+});
 
 const KanbanBoard = () => {
     const [columns, setColumns] = useState<Column[]>(() => {
@@ -95,21 +131,13 @@ const KanbanBoard = () => {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <Box
-                display="flex"
-                gap={2}
-                p={2}
-                sx={{ minHeight: '100vh', backgroundColor: '#f0f0f0' }}
-            >
+            <BoardContainer>
                 {columns.map((column) => (
-                    <Paper
-                        key={column.id}
-                        sx={{ width: 300, p: 2, borderRadius: 2 }}
-                    >
+                    <ColumnPaper key={column.id}>
                         <Typography variant="h6" gutterBottom>
                             {column.title}
                         </Typography>
-                        <Box display="flex" gap={1} mb={2}>
+                        <AddTaskBox>
                             <TextField
                                 size="small"
                                 variant="outlined"
@@ -124,40 +152,35 @@ const KanbanBoard = () => {
                             <Button variant="contained" onClick={() => handleAddTask(column.id)}>
                                 Add
                             </Button>
-                        </Box>
+                        </AddTaskBox>
                         <Droppable droppableId={column.id}>
                             {(provided) => (
-                                <Box
-                                    ref={provided.innerRef}
-                                    {...provided.droppableProps}
-                                    sx={{ minHeight: 200 }}
-                                >
+                                <TasksBox ref={provided.innerRef} {...provided.droppableProps}>
                                     {column.tasks.map((task, index) => (
                                         <Draggable key={task.id} draggableId={task.id} index={index}>
                                             {(provided) => (
-                                                <Card
+                                                <TaskCard
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
-                                                    sx={{ mb: 1, cursor: 'grab', display: 'flex', alignItems: 'center' }}
                                                 >
-                                                    <CardContent sx={{ flexGrow: 1 }}>
+                                                    <TaskCardContent>
                                                         <Typography>{task.content}</Typography>
-                                                    </CardContent>
+                                                    </TaskCardContent>
                                                     <IconButton onClick={() => handleDeleteTask(column.id, task.id)}>
                                                         <DeleteIcon />
                                                     </IconButton>
-                                                </Card>
+                                                </TaskCard>
                                             )}
                                         </Draggable>
                                     ))}
                                     {provided.placeholder}
-                                </Box>
+                                </TasksBox>
                             )}
                         </Droppable>
-                    </Paper>
+                    </ColumnPaper>
                 ))}
-            </Box>
+            </BoardContainer>
         </DragDropContext>
     );
 };
