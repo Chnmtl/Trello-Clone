@@ -40,16 +40,13 @@ const ColumnPaper = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(2),
     borderRadius: theme.spacing(2),
     backgroundColor: theme.palette.background.paper,
-    height: '100%',
 }));
 
 const AddTaskBox = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(1),
-    marginTop: 'auto',
     position: 'relative',
-    minHeight: 120,
 }));
 
 const TasksBox = styled(Box)({
