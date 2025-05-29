@@ -76,12 +76,12 @@ const KanbanBoard = () => {
             try {
                 const parsed = JSON.parse(saved);
                 // Migrate old format if needed
-                return parsed.map((col: any) => ({
+                return parsed.map((col: Column) => ({
                     ...col,
-                    tasks: (col.tasks || []).map((task: any) =>
-                        task.name !== undefined && task.description !== undefined
+                    tasks: (col.tasks || []).map((task: Task | { id: string; content?: string }) =>
+                        'name' in task && 'description' in task
                             ? task
-                            : { id: task.id, name: task.content || '', description: '' }
+                            : { id: task.id, name: (task as { content?: string }).content || '', description: '' }
                     ),
                 }));
             } catch {
