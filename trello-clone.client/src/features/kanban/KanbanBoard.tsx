@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { Box, Paper, Typography, Card, CardContent, IconButton, TextField } from '@mui/material';
+import { Box, Paper, Typography, Card, CardContent, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
-import CloseIcon from '@mui/icons-material/Close';
-import CheckIcon from '@mui/icons-material/Check';
 
 interface Task {
     id: string;
@@ -40,13 +38,6 @@ const ColumnPaper = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(2),
     borderRadius: theme.spacing(2),
     backgroundColor: theme.palette.background.paper,
-}));
-
-const AddTaskBox = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    position: 'relative',
 }));
 
 const TasksBox = styled(Box)({
@@ -111,7 +102,7 @@ const KanbanBoard = () => {
     };
     const [columns, setColumns] = useState<Column[]>(getInitialColumns);
     const [newTasks, setNewTasks] = useState<{ [columnId: string]: { name: string; description: string } }>({});
-    const [showAddForm, setShowAddForm] = useState<{ [columnId: string]: boolean }>({});
+    const [modalColumnId, setModalColumnId] = useState<string | null>(null);
 
     // Save to localStorage on columns change
     useEffect(() => {
@@ -169,9 +160,15 @@ const KanbanBoard = () => {
             <BoardContainer>
                 {columns.map((column) => (
                     <ColumnPaper key={column.id} sx={{ position: 'relative' }}>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant="h6" gutterBottom sx={{ pr: 5 }}>
                             {column.title}
                         </Typography>
+                        <Fab color="primary" size="small"
+                            onClick={() => setModalColumnId(column.id)}
+                            aria-label="add"
+                            sx={{ position: 'absolute', top: 16, right: 16 }}>
+                            <AddIcon />
+                        </Fab>
                         <Droppable droppableId={column.id}>
                             {(provided) => (
                                 <TasksBox ref={provided.innerRef} {...provided.droppableProps}>
@@ -198,51 +195,46 @@ const KanbanBoard = () => {
                                 </TasksBox>
                             )}
                         </Droppable>
-                        <AddTaskBox>
-                            {showAddForm[column.id] ? (
-                                <Box>
-                                    <TextField
-                                        size="small"
-                                        variant="outlined"
-                                        placeholder="Name"
-                                        value={newTasks[column.id]?.name || ''}
-                                        onChange={e => setNewTasks(tasks => ({ ...tasks, [column.id]: { ...tasks[column.id], name: e.target.value } }))}
-                                        fullWidth
-                                        sx={{ mb: 1 }}
-                                        autoFocus
-                                    />
-                                    <TextField
-                                        size="small"
-                                        variant="outlined"
-                                        placeholder="Description"
-                                        value={newTasks[column.id]?.description || ''}
-                                        onChange={e => setNewTasks(tasks => ({ ...tasks, [column.id]: { ...tasks[column.id], description: e.target.value } }))}
-                                        fullWidth
-                                        multiline
-                                        minRows={2}
-                                    />
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
-                                        <Fab color="primary" size="small" onClick={() => { handleAddTask(column.id); setShowAddForm(f => ({ ...f, [column.id]: false })); }} aria-label="confirm">
-                                            <CheckIcon />
-                                        </Fab>
-                                        <Fab color="default" size="small" onClick={() => { setShowAddForm(f => ({ ...f, [column.id]: false })); setNewTasks(tasks => ({ ...tasks, [column.id]: { name: '', description: '' } })); }} aria-label="cancel">
-                                            <CloseIcon />
-                                        </Fab>
-                                    </Box>
-                                </Box>
-                            ) : null}
-                        </AddTaskBox>
-                        {!showAddForm[column.id] && (
-                            <Fab color="primary" size="small"
-                                onClick={() => setShowAddForm(f => ({ ...f, [column.id]: true }))}
-                                aria-label="add"
-                                sx={{ position: 'absolute', bottom: 16, right: 16 }}>
-                                <AddIcon />
-                            </Fab>
-                        )}
                     </ColumnPaper>
                 ))}
             </BoardContainer>
+            <Dialog open={!!modalColumnId} onClose={() => setModalColumnId(null)}>
+                <DialogTitle>Add Card</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Name"
+                        type="text"
+                        fullWidth
+                        value={modalColumnId ? newTasks[modalColumnId]?.name || '' : ''}
+                        onChange={e => setNewTasks(tasks => ({ ...tasks, [modalColumnId!]: { ...tasks[modalColumnId!], name: e.target.value } }))}
+                        sx={{ mb: 2 }}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Description"
+                        type="text"
+                        fullWidth
+                        multiline
+                        minRows={2}
+                        value={modalColumnId ? newTasks[modalColumnId]?.description || '' : ''}
+                        onChange={e => setNewTasks(tasks => ({ ...tasks, [modalColumnId!]: { ...tasks[modalColumnId!], description: e.target.value } }))}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => {
+                        setModalColumnId(null);
+                        if (modalColumnId) setNewTasks(tasks => ({ ...tasks, [modalColumnId]: { name: '', description: '' } }));
+                    }}>Cancel</Button>
+                    <Button variant="contained" onClick={() => {
+                        if (modalColumnId) {
+                            handleAddTask(modalColumnId);
+                            setModalColumnId(null);
+                        }
+                    }}>Add</Button>
+                </DialogActions>
+            </Dialog>
         </DragDropContext>
     );
 };
