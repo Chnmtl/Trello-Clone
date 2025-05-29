@@ -1,35 +1,74 @@
 //import { useEffect, useState } from 'react';
 //import axios from 'axios';
-
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import KanbanBoard from './components/KanbanBoard';
+import KanbanBoard from './features/kanban/KanbanBoard';
+import About from './features/about/About';
+import Tables from './features/tables/Tables';
+import NavTabs from './components/NavTabs';
+import { Box, Container } from '@mui/material';
 
-//interface Board {
-//    id: number;
-//    name: string;
-//}
+function Header() {
+  return (
+    <NavTabs leftContent={<span>Trello Clone</span>} />
+  );
+}
+
+function Footer() {
+  return (
+    <Box component="footer" sx={{
+      width: '100%',
+      bgcolor: 'background.paper',
+      color: 'text.secondary',
+      textAlign: 'center',
+      py: 2,
+      mt: 4,
+      borderTop: 1,
+      borderColor: 'divider',
+      fontSize: 14,
+    }}>
+      © {new Date().getFullYear()} Trello Clone. All rights reserved.
+    </Box>
+  );
+}
+
+function MainContent({ children }: { children: React.ReactNode }) {
+  return (
+    <Container maxWidth="lg" sx={{ minHeight: '70vh', py: 3 }}>
+      {children}
+    </Container>
+  );
+}
+
 function App() {
-    //const [board, setBoard] = useState<Board | null>(null);
+  //const [board, setBoard] = useState<Board | null>(null);
 
-    //useEffect(() => {
-    //    axios.get('https://localhost:7125/api/board')
-    //        .then(response => setBoard(response.data))
-    //        .catch(error => console.error(error));
-    //}, []);
+  //useEffect(() => {
+  //    axios.get('https://localhost:7125/api/board')
+  //        .then(response => setBoard(response.data))
+  //        .catch(error => console.error(error));
+  //}, []);
 
-    return (
-        //<div>
-        //    {board ? (
-        //        <h1>Board: {board.name}</h1>
-        //    ) : (
-        //        <p>Loading...</p>
-        //    )}
-        //</div>
-        <div>
-            <h1>Trello Clone</h1>
-            <KanbanBoard />
-        </div>
-    );
+  return (
+    //<div>
+    //    {board ? (
+    //        <h1>Board: {board.name}</h1>
+    //    ) : (
+    //        <p>Loading...</p>
+    //    )}
+    //</div>
+    <Router>
+      <Header />
+      <MainContent>
+        <Routes>
+          <Route path="/" element={<About />} />
+          <Route path="/trello" element={<KanbanBoard />} />
+          <Route path="/tables" element={<Tables />} />
+        </Routes>
+      </MainContent>
+      <Footer />
+    </Router>
+  );
 }
 
 export default App;
