@@ -38,11 +38,22 @@ const ColumnPaper = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(2),
     borderRadius: theme.spacing(2),
     backgroundColor: theme.palette.background.paper,
+    height: 'fit-content',
+    maxHeight: '100%',
+}));
+
+const ColumnHeader = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing(2),
 }));
 
 const TasksBox = styled(Box)({
     minHeight: 200,
-    marginBottom: 8,
+    maxHeight: 'calc(80vh - 120px)',
+    overflowY: 'auto',
+    flex: 1,
 });
 
 const TaskCard = styled(Card)(({ theme }) => ({
@@ -159,16 +170,17 @@ const KanbanBoard = () => {
         <DragDropContext onDragEnd={onDragEnd}>
             <BoardContainer>
                 {columns.map((column) => (
-                    <ColumnPaper key={column.id} sx={{ position: 'relative' }}>
-                        <Typography variant="h6" gutterBottom sx={{ pr: 5 }}>
-                            {column.title}
-                        </Typography>
-                        <Fab color="primary" size="small"
-                            onClick={() => setModalColumnId(column.id)}
-                            aria-label="add"
-                            sx={{ position: 'absolute', top: 16, right: 16 }}>
-                            <AddIcon />
-                        </Fab>
+                    <ColumnPaper key={column.id}>
+                        <ColumnHeader>
+                            <Typography variant="h6">
+                                {column.title}
+                            </Typography>
+                            <Fab color="primary" size="small"
+                                onClick={() => setModalColumnId(column.id)}
+                                aria-label="add">
+                                <AddIcon />
+                            </Fab>
+                        </ColumnHeader>
                         <Droppable droppableId={column.id}>
                             {(provided) => (
                                 <TasksBox ref={provided.innerRef} {...provided.droppableProps}>
