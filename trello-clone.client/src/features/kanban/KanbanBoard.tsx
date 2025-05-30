@@ -79,13 +79,40 @@ const TaskCard = styled(Card)(({ theme }) => ({
     marginBottom: theme.spacing(1),
     cursor: 'grab',
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start', // align items to top
     backgroundColor: theme.palette.background.default,
+    position: 'relative', // allow absolute positioning inside
+    paddingTop: theme.spacing(1),
+    paddingRight: theme.spacing(1),
 }));
 
 const TaskCardContent = styled(CardContent)({
     flexGrow: 1,
+    paddingBottom: 8, // reduce bottom padding for more space
 });
+
+const DeleteButton = styled(IconButton)(({ theme }) => ({
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 2,
+    padding: 2, 
+    minWidth: 28,
+    minHeight: 28,
+    width: 28,
+    height: 28,
+    fontSize: '1rem',
+    color: theme.palette.primary.contrastText,
+    background: theme.palette.primary.main,
+    borderRadius: '50%',
+    boxShadow: theme.shadows[1],
+    transition: 'background 0.2s, color 0.2s',
+    
+    '&:hover': {
+        background: theme.palette.error.main,
+        color: theme.palette.error.contrastText,
+    },
+}));
 
 const KanbanBoard = () => {
     // On first load, migrate old tasks if needed
@@ -135,6 +162,7 @@ const KanbanBoard = () => {
     const [modalColumnId, setModalColumnId] = useState<string | null>(null);
     const [editingTask, setEditingTask] = useState<{ columnId: string; task: Task } | null>(null);
     const [editValues, setEditValues] = useState<{ name: string; description: string }>({ name: '', description: '' });
+    const [deleteConfirm, setDeleteConfirm] = useState<{ columnId: string; taskId: string } | null>(null);
 
     // Save to localStorage on columns change
     useEffect(() => {
@@ -165,12 +193,12 @@ const KanbanBoard = () => {
             cols.map(col =>
                 col.id === columnId
                     ? {
-                          ...col,
-                          tasks: [
-                              ...col.tasks,
-                              { id: `task-${Date.now()}`, name, description: description || '' },
-                          ],
-                      }
+                        ...col,
+                        tasks: [
+                            ...col.tasks,
+                            { id: `task-${Date.now()}`, name, description: description || '' },
+                        ],
+                    }
                     : col
             )
         );
@@ -194,13 +222,13 @@ const KanbanBoard = () => {
             cols.map(col =>
                 col.id === editingTask.columnId
                     ? {
-                          ...col,
-                          tasks: col.tasks.map(t =>
-                              t.id === editingTask.task.id
-                                  ? { ...t, name: editValues.name.trim(), description: editValues.description.trim() }
-                                  : t
-                          ),
-                      }
+                        ...col,
+                        tasks: col.tasks.map(t =>
+                            t.id === editingTask.task.id
+                                ? { ...t, name: editValues.name.trim(), description: editValues.description.trim() }
+                                : t
+                        ),
+                    }
                     : col
             )
         );
@@ -243,9 +271,12 @@ const KanbanBoard = () => {
                                                         <Typography fontWeight="bold">{task.name}</Typography>
                                                         <Typography variant="body2" color="text.secondary">{task.description}</Typography>
                                                     </TaskCardContent>
-                                                    <IconButton onClick={() => handleDeleteTask(column.id, task.id)}>
-                                                        <DeleteIcon />
-                                                    </IconButton>
+                                                    <DeleteButton onClick={e => {
+                                                        e.stopPropagation();
+                                                        setDeleteConfirm({ columnId: column.id, taskId: task.id });
+                                                    }}>
+                                                        <DeleteIcon fontSize="small" />
+                                                    </DeleteButton>
                                                 </TaskCard>
                                             )}
                                         </Draggable>
@@ -323,6 +354,20 @@ const KanbanBoard = () => {
                 <DialogActions>
                     <Button onClick={() => setEditingTask(null)}>Cancel</Button>
                     <Button variant="contained" onClick={handleEditTask}>Save</Button>
+                </DialogActions>
+            </Dialog>
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)}>
+                <DialogTitle>Delete Task</DialogTitle>
+                <DialogContent>
+                    <Typography>Are you sure you want to delete this task?</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+                    <Button color="error" variant="contained" onClick={() => {
+                        if (deleteConfirm) handleDeleteTask(deleteConfirm.columnId, deleteConfirm.taskId);
+                        setDeleteConfirm(null);
+                    }}>Delete</Button>
                 </DialogActions>
             </Dialog>
         </DragDropContext>
