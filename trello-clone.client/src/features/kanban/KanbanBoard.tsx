@@ -49,12 +49,31 @@ const ColumnHeader = styled(Box)(({ theme }) => ({
     marginBottom: theme.spacing(2),
 }));
 
-const TasksBox = styled(Box)({
+const TasksBox = styled(Box)(({ theme }) => ({
     minHeight: 200,
     maxHeight: 'calc(80vh - 120px)',
     overflowY: 'auto',
     flex: 1,
-});
+    // Custom scrollbar styles
+    scrollbarWidth: 'thin', // Firefox
+    scrollbarColor: `${theme.palette.primary.main} ${theme.palette.background.paper}`,
+    '&::-webkit-scrollbar': {
+        width: 8,
+        background: theme.palette.background.paper,
+        borderRadius: 4,
+    },
+    '&::-webkit-scrollbar-thumb': {
+        background: theme.palette.primary.main,
+        borderRadius: 4,
+        minHeight: 24,
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+        background: theme.palette.primary.dark,
+    },
+    '&::-webkit-scrollbar-corner': {
+        background: 'transparent',
+    },
+}));
 
 const TaskCard = styled(Card)(({ theme }) => ({
     marginBottom: theme.spacing(1),
@@ -114,6 +133,8 @@ const KanbanBoard = () => {
     const [columns, setColumns] = useState<Column[]>(getInitialColumns);
     const [newTasks, setNewTasks] = useState<{ [columnId: string]: { name: string; description: string } }>({});
     const [modalColumnId, setModalColumnId] = useState<string | null>(null);
+    const [editingTask, setEditingTask] = useState<{ columnId: string; task: Task } | null>(null);
+    const [editValues, setEditValues] = useState<{ name: string; description: string }>({ name: '', description: '' });
 
     // Save to localStorage on columns change
     useEffect(() => {
@@ -166,6 +187,26 @@ const KanbanBoard = () => {
         );
     };
 
+    // Edit task handler
+    const handleEditTask = () => {
+        if (!editingTask) return;
+        setColumns(cols =>
+            cols.map(col =>
+                col.id === editingTask.columnId
+                    ? {
+                          ...col,
+                          tasks: col.tasks.map(t =>
+                              t.id === editingTask.task.id
+                                  ? { ...t, name: editValues.name.trim(), description: editValues.description.trim() }
+                                  : t
+                          ),
+                      }
+                    : col
+            )
+        );
+        setEditingTask(null);
+    };
+
     return (
         <DragDropContext onDragEnd={onDragEnd}>
             <BoardContainer>
@@ -191,6 +232,12 @@ const KanbanBoard = () => {
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
+                                                    onClick={e => {
+                                                        // Prevent edit modal from opening when clicking delete
+                                                        if ((e.target as HTMLElement).closest('button')) return;
+                                                        setEditingTask({ columnId: column.id, task });
+                                                        setEditValues({ name: task.name, description: task.description });
+                                                    }}
                                                 >
                                                     <TaskCardContent>
                                                         <Typography fontWeight="bold">{task.name}</Typography>
@@ -210,6 +257,7 @@ const KanbanBoard = () => {
                     </ColumnPaper>
                 ))}
             </BoardContainer>
+            {/* Add Card Modal */}
             <Dialog open={!!modalColumnId} onClose={() => setModalColumnId(null)}>
                 <DialogTitle>Add Card</DialogTitle>
                 <DialogContent>
@@ -245,6 +293,36 @@ const KanbanBoard = () => {
                             setModalColumnId(null);
                         }
                     }}>Add</Button>
+                </DialogActions>
+            </Dialog>
+            {/* Edit Task Modal */}
+            <Dialog open={!!editingTask} onClose={() => setEditingTask(null)}>
+                <DialogTitle>Edit Task</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Name"
+                        type="text"
+                        fullWidth
+                        value={editValues.name}
+                        onChange={e => setEditValues(v => ({ ...v, name: e.target.value }))}
+                        sx={{ mb: 2 }}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Description"
+                        type="text"
+                        fullWidth
+                        multiline
+                        minRows={2}
+                        value={editValues.description}
+                        onChange={e => setEditValues(v => ({ ...v, description: e.target.value }))}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setEditingTask(null)}>Cancel</Button>
+                    <Button variant="contained" onClick={handleEditTask}>Save</Button>
                 </DialogActions>
             </Dialog>
         </DragDropContext>
