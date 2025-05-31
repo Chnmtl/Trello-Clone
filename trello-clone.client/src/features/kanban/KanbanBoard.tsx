@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { Box, Paper, Typography, Card, CardContent, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { styled } from '@mui/material/styles';
+import { Box, Paper, Typography, Card, CardContent, Fab, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import Fab from '@mui/material/Fab';
+import { styled } from '@mui/material/styles';
+import DeleteIconButton from '../../components/DeleteIconButton';
+import TagChip from '../../components/TagChip';
 
 interface Tag {
     name: string;
@@ -96,29 +96,6 @@ const TaskCardContent = styled(CardContent)({
     paddingBottom: 8,
 });
 
-const DeleteButton = styled(IconButton)(({ theme }) => ({
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    zIndex: 2,
-    padding: 2,
-    minWidth: 28,
-    minHeight: 28,
-    width: 28,
-    height: 28,
-    fontSize: '1rem',
-    color: theme.palette.primary.contrastText,
-    background: theme.palette.primary.main,
-    borderRadius: '50%',
-    boxShadow: theme.shadows[1],
-    transition: 'background 0.2s, color 0.2s',
-
-    '&:hover': {
-        background: theme.palette.error.main,
-        color: theme.palette.error.contrastText,
-    },
-}));
-
 const DeleteAllButton = styled(Button)(({ theme }) => ({
     marginLeft: theme.spacing(2),
     background: theme.palette.error.main,
@@ -155,17 +132,6 @@ const TagLegendContainer = styled(Box)(({ theme }) => ({
     alignItems: 'center',
     margin: `${theme.spacing(2)} 0`,
     flexWrap: 'wrap',
-}));
-
-const TagSwatch = styled('span')<{ bgcolor: string }>(({ bgcolor, theme }) => ({
-    display: 'inline-block',
-    width: 28,
-    height: 28,
-    borderRadius: '50%',
-    background: bgcolor,
-    marginRight: theme.spacing(1),
-    border: `2px solid ${theme.palette.background.paper}`,
-    verticalAlign: 'middle',
 }));
 
 const DEFAULT_COLUMNS: Column[] = [
@@ -377,10 +343,7 @@ const KanbanBoard = () => {
                         .map(key => {
                             const [name, color] = key.split('|');
                             return (
-                                <Box key={key} display="flex" alignItems="center">
-                                    <TagSwatch bgcolor={color} />
-                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>{name}</Typography>
-                                </Box>
+                                <TagChip key={key} name={name} color={color} style={{ marginRight: 8, marginBottom: 4 }} />
                             );
                         })}
                 </TagLegendContainer>
@@ -443,12 +406,15 @@ const KanbanBoard = () => {
                                                                 {task.description}
                                                             </Typography>
                                                         </TaskCardContent>
-                                                        <DeleteButton onClick={e => {
-                                                            e.stopPropagation();
-                                                            setDeleteConfirm({ columnId: column.id, taskId: task.id });
-                                                        }}>
-                                                            <DeleteIcon fontSize="small" />
-                                                        </DeleteButton>
+                                                        <DeleteIconButton
+                                                            onClick={e => {
+                                                                e.stopPropagation();
+                                                                setDeleteConfirm({ columnId: column.id, taskId: task.id });
+                                                            }}
+                                                            aria-label="delete-task"
+                                                            iconSize="small"
+                                                            sx={{ position: 'absolute', top: 8, right: 8, minWidth: 28, minHeight: 28, width: 28, height: 28 }}
+                                                        />
                                                     </TaskCard>
                                                 )}
                                             </Draggable>
@@ -502,19 +468,16 @@ const KanbanBoard = () => {
                                         error={!!duplicate}
                                         helperText={duplicate ? 'Duplicate tag name' : ' '}
                                     />
-                                    {/* Color palette swatches */}
+                                    {/* Color palette as TagChip */}
                                     <Box display="flex" gap={0.5}>
                                         {TAG_COLORS.map(color => (
-                                            <Box
+                                            <TagChip
                                                 key={color}
+                                                name={tag.name || 'TAG'}
+                                                color={color}
+                                                selected={tag.color === color}
                                                 onClick={() => setTagInput(tags => tags.map((t, i) => i === idx ? { ...t, color } : t))}
-                                                sx={{
-                                                    width: 24, height: 24, borderRadius: '50%', background: color,
-                                                    border: tag.color === color ? '2px solid #000' : '2px solid #fff',
-                                                    boxShadow: tag.color === color ? '0 0 0 2px #1976d2' : undefined,
-                                                    cursor: 'pointer',
-                                                    outline: 'none',
-                                                }}
+                                                style={{ cursor: 'pointer', opacity: tag.color === color ? 1 : 0.7, border: tag.color === color ? '2px solid #1976d2' : '2px solid #fff' }}
                                             />
                                         ))}
                                     </Box>
@@ -607,46 +570,27 @@ const KanbanBoard = () => {
                                                 helperText={duplicate ? 'Duplicate tag name' : ' '}
                                             />
                                         </Box>
-                                        {/* Color palette swatches in 2x5 grid */}
+                                        {/* Color palette as TagChip grid */}
                                         <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gridTemplateRows="repeat(2, 1fr)" gap={1} alignItems="center" mr={2}>
-                                            {TAG_COLORS.map((color) => (
-                                                <Box
+                                            {TAG_COLORS.map(color => (
+                                                <TagChip
                                                     key={color}
+                                                    name={tag.name || 'TAG'}
+                                                    color={color}
+                                                    selected={tag.color === color}
                                                     onClick={() => setEditTagInput(tags => tags.map((t, i) => i === idx ? { ...t, color } : t))}
-                                                    sx={{
-                                                        width: 24, height: 24, borderRadius: '50%', background: color,
-                                                        border: tag.color === color ? '2px solid #1976d2' : '2px solid #fff',
-                                                        boxShadow: tag.color === color ? '0 0 0 2px #1976d2' : undefined,
-                                                        cursor: 'pointer',
-                                                        outline: 'none',
-                                                        transition: 'border 0.2s',
-                                                    }}
+                                                    style={{ cursor: 'pointer', opacity: tag.color === color ? 1 : 0.7, border: tag.color === color ? '2px solid #1976d2' : '2px solid #fff' }}
                                                 />
                                             ))}
                                         </Box>
                                     </Box>
                                     {/* Remove icon button, consistent with card delete */}
-                                    <IconButton
-                                        color="error"
+                                    <DeleteIconButton
                                         onClick={() => setEditTagInput(tags => tags.filter((_, i) => i !== idx))}
-                                        sx={{
-                                            minWidth: 32,
-                                            minHeight: 32,
-                                            width: 32,
-                                            height: 32,
-                                            borderRadius: '50%',
-                                            background: theme => theme.palette.error.main,
-                                            color: theme => theme.palette.error.contrastText,
-                                            boxShadow: theme => theme.shadows[1],
-                                            ml: 1,
-                                            '&:hover': {
-                                                background: theme => theme.palette.error.dark,
-                                                color: theme => theme.palette.error.contrastText,
-                                            },
-                                        }}
-                                    >
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
+                                        aria-label="delete-tag"
+                                        iconSize="small"
+                                        sx={{ ml: 1, minWidth: 32, minHeight: 32, width: 32, height: 32, borderRadius: '50%' }}
+                                    />
                                 </Box>
                             );
                         })}
