@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import TagChip from '../../../components/TagChip';
-import { extractUniqueTags } from '../utils/tagUtils';
+import { extractUniqueTags, TagColor } from '../utils/tagUtils';
 import { Column } from '../types';
 
 interface TagLegendProps {
@@ -26,8 +26,7 @@ const TagLegend: React.FC<TagLegendProps> = ({ columns }) => {
                 <TagChip 
                     key={`${tag.name}-${tag.color}`} 
                     name={tag.name} 
-                    color={tag.color} 
-                    style={{ marginRight: 8, marginBottom: 4 }} 
+                    color={tag.color as TagColor}
                 />
             ))}
         </Box>

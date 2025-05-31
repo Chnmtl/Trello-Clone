@@ -82,11 +82,6 @@ const TagInput: React.FC<TagInputProps> = ({
                                         color={color}
                                         selected={tag.color === color}
                                         onClick={() => !disabled && onUpdateTag(idx, { color })}
-                                        style={{ 
-                                            cursor: disabled ? 'default' : 'pointer', 
-                                            opacity: tag.color === color ? 1 : 0.7, 
-                                            border: tag.color === color ? '2px solid #1976d2' : '2px solid #fff' 
-                                        }}
                                     />
                                 ))}
                             </Box>
@@ -127,11 +122,6 @@ const TagInput: React.FC<TagInputProps> = ({
                                     color={color}
                                     selected={tag.color === color}
                                     onClick={() => !disabled && onUpdateTag(idx, { color })}
-                                    style={{ 
-                                        cursor: disabled ? 'default' : 'pointer', 
-                                        opacity: tag.color === color ? 1 : 0.7, 
-                                        border: tag.color === color ? '2px solid #1976d2' : '2px solid #fff' 
-                                    }}
                                 />
                             ))}
                         </Box>

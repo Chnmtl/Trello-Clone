@@ -1,34 +1,53 @@
 import { useState, useEffect } from 'react';
 import { Column, Task, Tag } from '../types';
 import { DropResult } from '@hello-pangea/dnd';
+import { TagColor } from '../utils/tagUtils';
 
 const STORAGE_KEY = 'kanban-columns';
+
+// Helper to convert old hex colors to Material-UI color names
+const convertHexToMuiColor = (color: string): TagColor => {
+    const hexToMuiMap: { [key: string]: TagColor } = {
+        '#d32f2f': 'error',
+        '#1976d2': 'primary', 
+        '#388e3c': 'success',
+        '#5d4037': 'secondary',
+        '#f57c00': 'warning',
+        '#7b1fa2': 'info',
+        '#455a64': 'default',
+        '#c2185b': 'secondary',
+        '#0097a7': 'info',
+        '#fbc02d': 'warning'
+    };
+    
+    return hexToMuiMap[color] || 'default';
+};
 
 const DEFAULT_COLUMNS: Column[] = [
     {
         id: 'column-1',
         title: 'To Do',
         tasks: [
-            { id: 'task-1', name: 'Fix login bug', description: 'Users cannot log in with Google on mobile devices.', tags: [{ name: 'BUG', color: '#d32f2f' }] },
-            { id: 'task-2', name: 'Write docs', description: 'Document the new API endpoints for the frontend team.', tags: [{ name: 'DOC', color: '#1976d2' }] },
-            { id: 'task-3', name: 'Design dashboard', description: 'Create a new dashboard layout for analytics.', tags: [{ name: 'UI', color: '#388e3c' }] },
-            { id: 'task-4', name: 'Add dark mode', description: 'Implement dark mode toggle in settings.', tags: [{ name: 'UI', color: '#388e3c' }] },
+            { id: 'task-1', name: 'Fix login bug', description: 'Users cannot log in with Google on mobile devices.', tags: [{ name: 'BUG', color: 'error' }] },
+            { id: 'task-2', name: 'Write docs', description: 'Document the new API endpoints for the frontend team.', tags: [{ name: 'DOC', color: 'primary' }] },
+            { id: 'task-3', name: 'Design dashboard', description: 'Create a new dashboard layout for analytics.', tags: [{ name: 'UI', color: 'success' }] },
+            { id: 'task-4', name: 'Add dark mode', description: 'Implement dark mode toggle in settings.', tags: [{ name: 'UI', color: 'success' }] },
         ],
     },
     {
         id: 'column-2',
         title: 'In Progress',
         tasks: [
-            { id: 'task-5', name: 'Refactor auth', description: 'Refactor authentication logic for better maintainability.', tags: [{ name: 'CODE', color: '#5d4037' }] },
-            { id: 'task-6', name: 'Write tests', description: 'Add unit tests for the user service.', tags: [{ name: 'CODE', color: '#5d4037' }] },
+            { id: 'task-5', name: 'Refactor auth', description: 'Refactor authentication logic for better maintainability.', tags: [{ name: 'CODE', color: 'secondary' }] },
+            { id: 'task-6', name: 'Write tests', description: 'Add unit tests for the user service.', tags: [{ name: 'CODE', color: 'secondary' }] },
         ],
     },
     {
         id: 'column-3',
         title: 'Completed',
         tasks: [
-            { id: 'task-7', name: 'Setup CI', description: 'Continuous integration pipeline for PRs.', tags: [{ name: 'OPS', color: '#f57c00' }] },
-            { id: 'task-8', name: 'Initial setup', description: 'Project structure and dependencies.', tags: [{ name: 'INIT', color: '#7b1fa2' }] },
+            { id: 'task-7', name: 'Setup CI', description: 'Continuous integration pipeline for PRs.', tags: [{ name: 'OPS', color: 'warning' }] },
+            { id: 'task-8', name: 'Initial setup', description: 'Project structure and dependencies.', tags: [{ name: 'INIT', color: 'info' }] },
         ],
     },
 ];
@@ -58,8 +77,8 @@ export const useKanbanData = () => {
                                     ...task,
                                     tags: tags.map(t =>
                                         typeof t === 'string'
-                                            ? { name: t.slice(0, 5), color: '#455a64' }
-                                            : t
+                                            ? { name: t.slice(0, 5), color: 'default' }
+                                            : { ...t, color: convertHexToMuiColor(t.color) }
                                     ),
                                 };
                             } else {
@@ -124,7 +143,7 @@ export const useKanbanData = () => {
                                 id: `task-${Date.now()}`, 
                                 name: name.trim(), 
                                 description: description.trim(), 
-                                tags 
+                                tags: tags 
                             },
                         ],
                     }
@@ -141,7 +160,7 @@ export const useKanbanData = () => {
                         ...col,
                         tasks: col.tasks.map(t =>
                             t.id === taskId
-                                ? { ...t, name: name.trim(), description: description.trim(), tags }
+                                ? { ...t, name: name.trim(), description: description.trim(), tags: tags }
                                 : t
                         ),
                     }
