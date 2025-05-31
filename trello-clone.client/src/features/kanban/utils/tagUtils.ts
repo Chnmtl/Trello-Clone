@@ -1,6 +1,6 @@
 import { Tag } from '../types';
 
-// Simple Material-UI compatible colors - 8 distinct options
+// Simple Material-UI compatible colors - 8 distinct options  
 export const TAG_COLORS = [
     'primary',
     'secondary', 
@@ -9,7 +9,7 @@ export const TAG_COLORS = [
     'warning',
     'info',
     'default',
-    'primary'
+    'action'
 ] as const;
 
 export type TagColor = typeof TAG_COLORS[number];

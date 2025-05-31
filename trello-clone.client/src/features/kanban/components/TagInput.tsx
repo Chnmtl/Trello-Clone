@@ -108,7 +108,13 @@ const TagInput: React.FC<TagInputProps> = ({
                         <Typography variant="caption" color="text.secondary" mb={1} display="block">
                             Choose color:
                         </Typography>
-                        <Box display="flex" gap={1} flexWrap="wrap">
+                        <Box 
+                            display="grid" 
+                            gridTemplateColumns="repeat(4, 1fr)" 
+                            gridTemplateRows="repeat(2, 1fr)" 
+                            gap={1}
+                            maxWidth={240}
+                        >
                             {TAG_COLORS.map(color => (
                                 <TagChip
                                     key={color}
@@ -149,7 +155,13 @@ const TagInput: React.FC<TagInputProps> = ({
                                 <DeleteIcon />
                             </IconButton>
                         </Box>
-                        <Box display="flex" gap={0.5} flexWrap="wrap">
+                        <Box 
+                            display="grid" 
+                            gridTemplateColumns="repeat(4, 1fr)" 
+                            gridTemplateRows="repeat(2, 1fr)" 
+                            gap={0.5}
+                            maxWidth={200}
+                        >
                             {TAG_COLORS.map(color => (
                                 <TagChip
                                     key={color}
