@@ -1,37 +1,36 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Chip } from '@mui/material';
+import { TagColor } from '../features/kanban/utils/tagUtils';
 
 interface TagChipProps {
   name: string;
-  color: string;
+  color: TagColor;
   selected?: boolean;
   onClick?: () => void;
-  style?: React.CSSProperties;
-  className?: string;
+  onDelete?: () => void;
+  size?: 'small' | 'medium';
 }
 
-const ChipContainer = styled(Box)<{ bgcolor: string; selected?: boolean }>(({ theme, bgcolor, selected }) => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  padding: '0 12px',
-  height: 32,
-  borderRadius: 16,
-  background: bgcolor,
-  color: theme.palette.getContrastText(bgcolor),
-  fontWeight: 600,
-  fontSize: 14,
-  boxShadow: selected ? `0 0 0 2px ${theme.palette.primary.main}` : theme.shadows[1],
-  border: selected ? `2px solid ${theme.palette.primary.main}` : 'none',
-  cursor: 'pointer',
-  transition: 'box-shadow 0.2s, border 0.2s',
-  userSelect: 'none',
-}));
-
-const TagChip: React.FC<TagChipProps> = ({ name, color, selected, onClick, style, className }) => (
-  <ChipContainer bgcolor={color} selected={selected} onClick={onClick} style={style} className={className}>
-    <Typography variant="body2" sx={{ fontWeight: 600, fontSize: 14, lineHeight: 1 }}>{name}</Typography>
-  </ChipContainer>
+const TagChip: React.FC<TagChipProps> = ({ 
+  name, 
+  color, 
+  selected, 
+  onClick, 
+  onDelete,
+  size = 'small'
+}) => (
+  <Chip
+    label={name}
+    color={color}
+    onClick={onClick}
+    onDelete={onDelete}
+    size={size}
+    variant={selected ? "outlined" : "filled"}
+    sx={{
+      border: selected ? '2px solid #1976d2' : 'none',
+      cursor: onClick ? 'pointer' : 'default',
+    }}
+  />
 );
 
 export default TagChip;
