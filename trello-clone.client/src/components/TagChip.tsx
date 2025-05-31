@@ -28,8 +28,10 @@ const TagChip: React.FC<TagChipProps> = ({
     variant={selected ? "outlined" : "filled"}
     sx={{
       border: selected ? '2px solid #1976d2' : 'none',
+      cursor: onClick ? 'pointer' : 'default',
     }}
   />
+  </ChipContainer>
 );
 
 export default TagChip;

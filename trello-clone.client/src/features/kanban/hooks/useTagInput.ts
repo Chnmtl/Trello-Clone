@@ -22,8 +22,9 @@ export const useTagInput = (initialTags: Tag[] = []) => {
     const [tags, setTags] = useState<Tag[]>(initialTags);
 
     const addTag = (name: string, color: string) => {
-        if (!name.trim()) return;
-        setTags(prev => [...prev, { name: name.trim(), color }]);
+        const trimmedName = name.trim();
+        if (!trimmedName || trimmedName.length > 12) return;
+        setTags(prev => [...prev, { name: trimmedName, color }]);
     };
 
     const updateTag = (index: number, updates: Partial<Tag>) => {
@@ -44,7 +45,7 @@ export const useTagInput = (initialTags: Tag[] = []) => {
         setTags(newTags);
     };
 
-    const isValid = !hasDuplicateTagNames(tags) && !tags.some(t => !t.name.trim());
+    const isValid = !hasDuplicateTagNames(tags) && !tags.some(t => !t.name.trim() || t.name.length > 12);
 
     return {
         tags,
